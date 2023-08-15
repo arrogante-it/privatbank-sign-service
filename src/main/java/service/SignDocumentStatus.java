@@ -1,4 +1,4 @@
-package client;
+package service;
 
 public enum SignDocumentStatus {
     SUCCESS,
