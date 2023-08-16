@@ -1,7 +1,7 @@
 package service;
 
-public interface SignService {
-    String signDocument(String operationId);
+import exception.SignServiceException;
 
-    SignDocumentStatus returnSignDocumentStatus(String operationId);
+public interface SignService {
+    String signDocument(String operationId) throws SignServiceException;
 }

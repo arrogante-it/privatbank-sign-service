@@ -1,9 +1,8 @@
 package service;
 
 import client.PrivatbankSignClient;
+import exception.SignServiceException;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -12,30 +11,25 @@ import java.io.IOException;
 public class SignServiceImpl implements SignService {
     private final PrivatbankSignClient privatBankSignClient;
 
-    private final CloseableHttpClient httpClient;
-
     @Override
-    public String signDocument(String operationId) {
-        try (CloseableHttpResponse response = httpClient
-                .execute(privatBankSignClient
-                        .signDocument(operationId))) {
-            return EntityUtils.toString(response.getEntity());
+    public String signDocument(String operationId) throws SignServiceException {
+        try {
+            String result = EntityUtils.toString(privatBankSignClient.signDocument(operationId).getEntity());
+            returnSignDocumentStatus(result);
+            return result;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new SignServiceException();
         }
     }
 
-    @Override
-    public SignDocumentStatus returnSignDocumentStatus(String operationId) {
+    private SignDocumentStatus returnSignDocumentStatus(String operationId) throws SignServiceException {
         try {
             String responseContent = EntityUtils.toString(privatBankSignClient
                     .checkSignDocumentStatus(operationId)
                     .getEntity());
             return responseContent.equals("SUCCESS") ? SignDocumentStatus.SUCCESS : SignDocumentStatus.FAILURE;
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new SignServiceException();
         }
     }
 }

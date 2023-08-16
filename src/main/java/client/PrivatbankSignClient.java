@@ -8,7 +8,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 @RequiredArgsConstructor
 public class PrivatbankSignClient {
@@ -18,16 +17,20 @@ public class PrivatbankSignClient {
 
     private final CloseableHttpClient httpClient;
 
-    public HttpPost signDocument(String operationId) throws UnsupportedEncodingException {
+    public CloseableHttpResponse signDocument(String operationId) throws IOException {
         StringEntity signEntity = new StringEntity("{\"operationId\": \"" + operationId + "\"}");
+
         HttpPost signRequest = new HttpPost(SIGN);
         signRequest.setEntity(signEntity);
         signRequest.setHeader("Content-Type", "application/json");
-        return signRequest;
+
+        return httpClient
+                .execute(signRequest);
     }
 
-    public CloseableHttpResponse checkSignDocumentStatus(String operationId) throws IOException {
-        HttpGet signStatusRequest = new HttpGet(SIGN_STATUS_BY_OPERATION_ID + operationId);
+    public CloseableHttpResponse checkSignDocumentStatus(String responce) throws IOException {
+        HttpGet signStatusRequest = new HttpGet(SIGN_STATUS_BY_OPERATION_ID + responce);
+
         return httpClient.execute(signStatusRequest);
     }
 }
