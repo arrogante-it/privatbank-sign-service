@@ -1,7 +1,7 @@
 package exception;
 
-import java.io.IOException;
-
-public class SignServiceException extends IOException {
-
+public class SignServiceException extends RuntimeException {
+    public SignServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

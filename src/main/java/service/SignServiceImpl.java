@@ -9,27 +9,26 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 public class SignServiceImpl implements SignService {
-    private final PrivatbankSignClient privatBankSignClient;
+    private final PrivatbankSignClient privatbankSignClient;
 
     @Override
-    public String signDocument(String operationId) throws SignServiceException {
+    public SignDocumentStatus signDocument(String operationId) {
         try {
-            String result = EntityUtils.toString(privatBankSignClient.signDocument(operationId).getEntity());
-            returnSignDocumentStatus(result);
-            return result;
+            String result = EntityUtils.toString(privatbankSignClient.signDocument(operationId).getEntity());
+            return getSignDocumentStatus(result);
         } catch (IOException e) {
-            throw new SignServiceException();
+            throw new SignServiceException("couldn't sign document", e);
         }
     }
 
-    private SignDocumentStatus returnSignDocumentStatus(String operationId) throws SignServiceException {
+    private SignDocumentStatus getSignDocumentStatus(String operationId) {
         try {
-            String responseContent = EntityUtils.toString(privatBankSignClient
+            String responseContent = EntityUtils.toString(privatbankSignClient
                     .checkSignDocumentStatus(operationId)
                     .getEntity());
             return responseContent.equals("SUCCESS") ? SignDocumentStatus.SUCCESS : SignDocumentStatus.FAILURE;
         } catch (IOException e) {
-            throw new SignServiceException();
+            throw new SignServiceException("couldn't return status", e);
         }
     }
 }

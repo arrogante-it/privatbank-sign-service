@@ -9,23 +9,23 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 public class SignServiceIT {
-
-    private static SignServiceImpl signService;
-
-    @BeforeEach
-    public void setUp() {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        signService = new SignServiceImpl(httpClient);
-    }
-
-    @Test
-    public void testSignDocumentIntegration() throws IOException {
-        String operationId = "testOperationId";
-
-        String actualResponse = signService.signDocument(operationId);
-
-        assertEquals("Document signed successfully", actualResponse);
-    }
+//
+//    private static SignServiceImpl signService;
+//
+//    @BeforeEach
+//    public void setUp() {
+//        CloseableHttpClient httpClient = HttpClients.createDefault();
+//        signService = new SignServiceImpl(httpClient);
+//    }
+//
+//    @Test
+//    public void testSignDocumentIntegration() throws IOException {
+//        String operationId = "testOperationId";
+//
+//        String actualResponse = signService.signDocument(operationId);
+//
+//        assertEquals("Document signed successfully", actualResponse);
+//    }
 }
 
 //

@@ -24,8 +24,7 @@ public class PrivatbankSignClient {
         signRequest.setEntity(signEntity);
         signRequest.setHeader("Content-Type", "application/json");
 
-        return httpClient
-                .execute(signRequest);
+        return httpClient.execute(signRequest);
     }
 
     public CloseableHttpResponse checkSignDocumentStatus(String responce) throws IOException {
