@@ -1,46 +1,75 @@
 package service;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.jupiter.api.Test;
+import client.PrivatbankSignClient;
+import exception.SignServiceException;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.entity.StringEntity;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SignServiceTest {
-//    private static final String RESPONSE_BODY = "Signed document content";
-//    private static final String OPERATION_ID = "12345";
-//
-//    @Mock
-//    private CloseableHttpClient mockHttpClient;
-//
-//    @InjectMocks
-//    private SignServiceImpl signService;
-//
-//    @Test
-//    public void testSignDocument() throws IOException {
-//        CloseableHttpResponse mockResponse = mock(CloseableHttpResponse.class);
-//        HttpEntityWrapper mockEntity = mock(HttpEntityWrapper.class);
-//
-//        InputStream inputStream = new ByteArrayInputStream(RESPONSE_BODY.getBytes());
-//
-//        when(mockEntity.getContent()).thenReturn(inputStream);
-//        when(mockResponse.getEntity()).thenReturn(mockEntity);
-//        when(mockHttpClient.execute(any())).thenReturn(mockResponse);
-//
-//        String signedDocument = signService.signDocument(OPERATION_ID);
-//
-//        assertEquals(RESPONSE_BODY, signedDocument);
-//    }
+class SignServiceTest {
+    @Mock
+    private PrivatbankSignClient mockSignClient;
+
+    @InjectMocks
+    private SignServiceImpl signService;
+
+    @Test
+    void testSignDocument_Success() throws IOException {
+        String operationId = "123";
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        HttpEntity entity = new StringEntity("SUCCESS");
+
+        when(mockSignClient.signDocument(operationId)).thenReturn(response);
+        when(response.getEntity()).thenReturn(entity);
+
+        SignDocumentStatus result = signService.signDocument(operationId);
+
+        assertEquals(SignDocumentStatus.SUCCESS, result);
+        verify(mockSignClient).signDocument(operationId);
+        verify(response).close();
+    }
+
+    @Test
+    void testSignDocument_Failure() throws IOException {
+        String operationId = "456";
+        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        HttpEntity entity = new StringEntity("FAILURE");
+
+        when(mockSignClient.signDocument(operationId)).thenReturn(response);
+        when(response.getEntity()).thenReturn(entity);
+
+        SignDocumentStatus result = signService.signDocument(operationId);
+
+        assertEquals(SignDocumentStatus.FAILURE, result);
+        verify(mockSignClient).signDocument(operationId);
+        verify(response).close();
+    }
+
+    @Test
+    void testSignDocument_Exception() throws IOException {
+        String operationId = "789";
+        IOException ioException = new IOException("Test exception");
+
+        when(mockSignClient.signDocument(operationId)).thenThrow(ioException);
+
+        SignServiceException exception =
+                org.junit.jupiter.api.Assertions.assertThrows(SignServiceException.class, () -> {
+                    signService.signDocument(operationId);
+                });
+
+        assertEquals("couldn't sign document", exception.getMessage());
+        assertEquals(ioException, exception.getCause());
+        verify(mockSignClient).signDocument(operationId);
+    }
 }
